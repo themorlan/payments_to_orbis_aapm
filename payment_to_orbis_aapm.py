@@ -1,8 +1,22 @@
 import pyautogui
 import time
 import csv
-import pprint
+from PyInquirer import prompt
+from examples import custom_style_3
+import pathlib
+
+pyautogui.FAILSAFE = True
 bereits_erfasste_zahlungen = []
+csv_folder = pathlib.Path.cwd() / "Ergebnisse"
+pyinquirer_questions = [
+    {
+        "type": "list",
+        "name": "user_input",
+        "message": "Bitte auswählen",
+        "choices": [str(file_path.absolute()) for file_path in pathlib.Path(csv_folder).glob('**/*.[cC][sS][vV]')]
+    },
+    ]
+
 
 
 def csv_to_dict(csv_file: str) -> dict:
@@ -12,7 +26,6 @@ def csv_to_dict(csv_file: str) -> dict:
         for row in reader:
             _dict[row['Rechnungsnummer']] = {'Umsatz': row['Umsatz'], 'Buchungstag': row['Buchungstag']}
         return _dict
-
 
 
 def start_aapm() -> None:
@@ -79,7 +92,9 @@ def exit_aapm():
     pyautogui.hotkey("enter")
 
 
-def write_zahlung(rechnungsnummer: str):
+def write_zahlung(rechnungsnummer: str, data: dict):
+    print(f"Schreibe {rechnungsnummer}. Buchung vom {data['Buchungstag']} über {data['Umsatz']}.")
+    pyautogui.countdown(5)
     pyautogui.write(rechnungsnummer)
     pyautogui.hotkey("tab")
     if produces_error():
@@ -90,12 +105,12 @@ def write_zahlung(rechnungsnummer: str):
         pyautogui.hotkey("tab")
     pyautogui.hotkey("enter")
     # Write Buchungsdatum
-    pyautogui.write("27092022")
+    pyautogui.write(data['Buchungstag'])
     pyautogui.hotkey("tab")
     # Write Bezahlsumme
-    pyautogui.write("221,60")
+    pyautogui.write(data['Umsatz'])
     # Jump to "Speichern"
-    for i in range(0,6):
+    for i in range(0, 6):
         pyautogui.hotkey("tab")
     pyautogui.hotkey("enter")
     # Jump to "OK"
@@ -104,6 +119,8 @@ def write_zahlung(rechnungsnummer: str):
 
     
 def main():
+    answers = prompt(questions=pyinquirer_questions, style=custom_style_3)
+    choice = answers.get('user_input')
     if not aapm_open():
         start_aapm()
         choose_privat()
@@ -111,9 +128,29 @@ def main():
     if not zahlung_erfassen_open():
         open_zahlung_erfassen()
 
+    working_dict = csv_to_dict(choice)
+    for rechnungsnummer, data in working_dict.items():
+        if rechnungsnummer.startswith("9"):
+            write_zahlung(rechnungsnummer=rechnungsnummer, data=data)
+    
+    exit_aapm()
 
-    write_zahlung("90105495")
+
+    if not aapm_open():
+        start_aapm()
+        choose_westerstadion()
+
+    if not zahlung_erfassen_open():
+        open_zahlung_erfassen()
+
+    working_dict = csv_to_dict(choice)
+    for rechnungsnummer, data in working_dict.items():
+        if rechnungsnummer.startswith("7"):
+            write_zahlung(rechnungsnummer=rechnungsnummer, data=data)
+    
+    exit_aapm()
 
 
 if __name__ == "__main__":
-    pprint.pprint(csv_to_dict("28.09.2022_datev_export.csv"))
+    main()
+    
