@@ -4,6 +4,7 @@ import csv
 from PyInquirer import prompt
 from examples import custom_style_3
 import pathlib
+import os
 
 pyautogui.FAILSAFE = True
 bereits_erfasste_zahlungen = []
@@ -124,6 +125,9 @@ def main():
     # if not orbis_open():
     #     print("Bitte Orbis starten, einloggen und dann das Skript nochmal starten.")
     #     exit(1)
+
+    # Clear screen
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     answers = prompt(questions=pyinquirer_questions, style=custom_style_3)
     choice = answers.get('user_input')
