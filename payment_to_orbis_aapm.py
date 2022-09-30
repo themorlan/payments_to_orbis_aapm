@@ -43,18 +43,18 @@ def choose_privat() -> None:
     pyautogui.write(["GP Radiologie privat", "enter"], 0.1)
 
 
-def choose_westerstadion() -> None:
+def choose_weserstadion() -> None:
     pyautogui.write(["Radiologie am Weserstadion", "enter"], 0.1)
 
 
-def aapm_open():
+def aapm_open() -> bool:
     if len(pyautogui.getWindowsWithTitle("ORBIS-AAPM")) > 0:
         return True
     else:
         return False
 
 
-def orbis_open():
+def orbis_open() -> bool:
     if len(pyautogui.getWindowsWithTitle("ORBIS AZH")) > 0:
         return True
     else:
@@ -88,14 +88,14 @@ def produces_error() -> bool:
         return False
 
 
-def exit_aapm():
+def exit_aapm() -> None:
     w = pyautogui.getWindowsWithTitle("ORBIS-AAPM")
     w[0].activate()
     pyautogui.hotkey("alt", "F4")
     pyautogui.hotkey("enter")
 
 
-def write_zahlung(rechnungsnummer: str, data: dict):
+def write_zahlung(rechnungsnummer: str, data: dict) -> None:
     print(f"Schreibe {rechnungsnummer}. Buchung vom {data['Buchungstag']} über {data['Umsatz']}.")
     pyautogui.countdown(5)
     pyautogui.write(rechnungsnummer)
@@ -105,7 +105,7 @@ def write_zahlung(rechnungsnummer: str, data: dict):
         pyautogui.hotkey('esc')
         return
     # Jump to "Neu"
-    for i in range(0,4):
+    for i in range(0, 4):
         pyautogui.hotkey("tab")
     pyautogui.hotkey("enter")
     # Write Buchungsdatum
@@ -136,6 +136,8 @@ def main():
     for rechnungsnummer, data in working_dict.items():
         print(rechnungsnummer)
         print(data)
+    exit()
+
     if not aapm_open():
         start_aapm()
         choose_privat()
@@ -152,7 +154,7 @@ def main():
 
     if not aapm_open():
         start_aapm()
-        choose_westerstadion()
+        choose_weserstadion()
 
     if not zahlung_erfassen_open():
         open_zahlung_erfassen()
