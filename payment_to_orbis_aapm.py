@@ -8,14 +8,10 @@ import pathlib
 pyautogui.FAILSAFE = True
 bereits_erfasste_zahlungen = []
 csv_folder = pathlib.Path.cwd() / "Ergebnisse"
-pyinquirer_questions = [
-    {
-        "type": "list",
-        "name": "user_input",
-        "message": "Bitte auswählen",
-        "choices": [str(file_path.absolute()) for file_path in pathlib.Path(csv_folder).glob('**/*.[cC][sS][vV]')]
-    },
-    ]
+pyinquirer_questions = [{"type": "list",
+                         "name": "user_input",
+                         "message": "Bitte auswählen",
+                         "choices": [str(file_path.absolute()) for file_path in pathlib.Path(csv_folder).glob('**/*.[cC][sS][vV]')]}]
 
 
 def csv_to_dict(csv_file: str) -> dict:
@@ -52,6 +48,13 @@ def choose_westerstadion() -> None:
 
 def aapm_open():
     if len(pyautogui.getWindowsWithTitle("ORBIS-AAPM")) > 0:
+        return True
+    else:
+        return False
+
+
+def orbis_open():
+    if len(pyautogui.getWindowsWithTitle("ORBIS AZH")) > 0:
         return True
     else:
         return False
@@ -118,8 +121,16 @@ def write_zahlung(rechnungsnummer: str, data: dict):
 
     
 def main():
+    # if not orbis_open():
+    #     print("Bitte Orbis starten, einloggen und dann das Skript nochmal starten.")
+    #     exit(1)
+
     answers = prompt(questions=pyinquirer_questions, style=custom_style_3)
     choice = answers.get('user_input')
+    working_dict = csv_to_dict(choice)
+    for rechnungsnummer, data in working_dict.items():
+        print(rechnungsnummer)
+        print(data)
     if not aapm_open():
         start_aapm()
         choose_privat()
