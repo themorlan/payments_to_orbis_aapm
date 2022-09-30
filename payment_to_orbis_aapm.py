@@ -32,7 +32,7 @@ def start_aapm() -> None:
     aapm_button = pyautogui.locateCenterOnScreen("aapm.png")
     pyautogui.click(aapm_button)
     time.sleep(1)
-    pyautogui.write(['enter'], 0.25)
+    pyautogui.hotkey('enter')
     while True:
         if len(pyautogui.getWindowsWithTitle("Rechnungssteller suchen")) > 0:
             break
@@ -102,6 +102,7 @@ def write_zahlung(rechnungsnummer: str, data: dict):
     pyautogui.hotkey("tab")
     if produces_error():
         bereits_erfasste_zahlungen.append(rechnungsnummer)
+        pyautogui.hotkey('esc')
         return
     # Jump to "Neu"
     for i in range(0,4):
@@ -162,6 +163,8 @@ def main():
             write_zahlung(rechnungsnummer=rechnungsnummer, data=data)
     
     exit_aapm()
+
+    print(f"Folgende Rechnungsnummer konnten nicht verarbeitet werden: {bereits_erfasste_zahlungen}")
 
 
 if __name__ == "__main__":
