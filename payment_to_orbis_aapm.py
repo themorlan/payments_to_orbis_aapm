@@ -18,7 +18,6 @@ pyinquirer_questions = [
     ]
 
 
-
 def csv_to_dict(csv_file: str) -> dict:
     with open(csv_file, "r", encoding="utf-8-SIG") as _csv_file:
         reader = csv.DictReader(_csv_file, delimiter=";")
@@ -134,7 +133,6 @@ def main():
             write_zahlung(rechnungsnummer=rechnungsnummer, data=data)
     
     exit_aapm()
-
 
     if not aapm_open():
         start_aapm()
