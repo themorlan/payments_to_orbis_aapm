@@ -141,6 +141,7 @@ def main():
     if not aapm_open():
         start_aapm()
         choose_privat()
+    #TODO: Else determine which aapm is open
 
     if not zahlung_erfassen_open():
         open_zahlung_erfassen()
