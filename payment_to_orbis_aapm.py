@@ -1,3 +1,4 @@
+from importlib.resources import path
 import pyautogui
 import time
 import csv
@@ -8,7 +9,9 @@ import os
 
 pyautogui.FAILSAFE = True
 bereits_erfasste_zahlungen = []
+rechnungsnummer_nicht_gefunden = []
 csv_folder = pathlib.Path.cwd() / "Ergebnisse"
+script_folder = pathlib.Path(__file__).parent
 pyinquirer_questions = [{"type": "list",
                          "name": "user_input",
                          "message": "Bitte auswählen",
@@ -29,7 +32,7 @@ def start_aapm() -> None:
     w[0].activate()
     w[0].maximize()
     time.sleep(1)
-    aapm_button = pyautogui.locateCenterOnScreen("aapm.png")
+    aapm_button = pyautogui.locateCenterOnScreen(str(script_folder / "aapm.png"))
     pyautogui.click(aapm_button)
     time.sleep(1)
     pyautogui.hotkey('enter')
@@ -40,11 +43,15 @@ def start_aapm() -> None:
 
 
 def choose_privat() -> None:
-    pyautogui.write(["GP Radiologie privat", "enter"], 0.1)
+    pyautogui.hotkey("tab")
+    pyautogui.write("GP Radiologie privat")
+    pyautogui.hotkey("enter")
 
 
 def choose_weserstadion() -> None:
-    pyautogui.write(["Radiologie am Weserstadion", "enter"], 0.1)
+    pyautogui.hotkey("tab")
+    pyautogui.write("Radiologie am Weserstadion")
+    pyautogui.hotkey("enter")
 
 
 def aapm_open() -> bool:
@@ -97,11 +104,10 @@ def exit_aapm() -> None:
 
 def write_zahlung(rechnungsnummer: str, data: dict) -> None:
     print(f"Schreibe {rechnungsnummer}. Buchung vom {data['Buchungstag']} über {data['Umsatz']}.")
-    pyautogui.countdown(5)
     pyautogui.write(rechnungsnummer)
     pyautogui.hotkey("tab")
     if produces_error():
-        bereits_erfasste_zahlungen.append(rechnungsnummer)
+        rechnungsnummer_nicht_gefunden.append(rechnungsnummer)
         pyautogui.hotkey('esc')
         return
     # Jump to "Neu"
@@ -115,61 +121,61 @@ def write_zahlung(rechnungsnummer: str, data: dict) -> None:
     pyautogui.write(data['Umsatz'])
     # Jump to "Speichern"
     for i in range(0, 6):
+        if produces_error():
+            bereits_erfasste_zahlungen.append(rechnungsnummer)
+            pyautogui.hotkey('esc')
+            return
         pyautogui.hotkey("tab")
     pyautogui.hotkey("enter")
     # Jump to "OK"
     pyautogui.hotkey("tab")
+    pyautogui.countdown(3)
     pyautogui.hotkey("enter")
 
     
 def main():
-    # if not orbis_open():
-    #     print("Bitte Orbis starten, einloggen und dann das Skript nochmal starten.")
-    #     exit(1)
+    if not orbis_open():
+        print("Bitte Orbis starten, einloggen und dann das Skript nochmal starten.")
+        exit(1)
 
     # Clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
 
     answers = prompt(questions=pyinquirer_questions, style=custom_style_3)
     choice = answers.get('user_input')
-    working_dict = csv_to_dict(choice)
-    for rechnungsnummer, data in working_dict.items():
-        print(rechnungsnummer)
-        print(data)
-    exit()
 
     if not aapm_open():
         start_aapm()
         choose_privat()
     #TODO: Else determine which aapm is open
-
-    if not zahlung_erfassen_open():
-        open_zahlung_erfassen()
-
+   
     working_dict = csv_to_dict(choice)
     for rechnungsnummer, data in working_dict.items():
         if rechnungsnummer.startswith("9"):
+            if not zahlung_erfassen_open():
+                open_zahlung_erfassen()
             write_zahlung(rechnungsnummer=rechnungsnummer, data=data)
     
     exit_aapm()
 
     if not aapm_open():
         start_aapm()
+        pyautogui.sleep(2)
         choose_weserstadion()
-
-    if not zahlung_erfassen_open():
-        open_zahlung_erfassen()
 
     working_dict = csv_to_dict(choice)
     for rechnungsnummer, data in working_dict.items():
         if rechnungsnummer.startswith("7"):
+            if not zahlung_erfassen_open():
+                open_zahlung_erfassen()
             write_zahlung(rechnungsnummer=rechnungsnummer, data=data)
     
     exit_aapm()
 
-    print(f"Folgende Rechnungsnummer konnten nicht verarbeitet werden: {bereits_erfasste_zahlungen}")
+    print(f"Folgende Rechnungsnummer waren bereits gebucht: {bereits_erfasste_zahlungen}")
+    print(f"Folgende Rechnungsnummer wurden nicht gefunden: {rechnungsnummer_nicht_gefunden}")
 
 
 if __name__ == "__main__":
     main()
-    
+
