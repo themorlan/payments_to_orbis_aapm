@@ -19,5 +19,5 @@ jobs:
      name: Upload artifact to workflow
      uses: actions/upload-artifact@v3
      with:
-       name: payments_to_aapm.exe
+       name: payments_to_orbis_aapm.exe
        path: ./
