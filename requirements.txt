@@ -1,3 +1,4 @@
 Pillow
 PyAutoGUI
 PyInquirer
+readchar

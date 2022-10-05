@@ -6,6 +6,8 @@ from PyInquirer import prompt
 from examples import custom_style_3
 import pathlib
 import os
+import traceback
+import readchar
 
 pyautogui.FAILSAFE = True
 bereits_erfasste_zahlungen = []
@@ -183,5 +185,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        print(traceback.format_exc())
+    finally:
+        print("Drücke eine beliebige Taste um das Programm zu beenden...")
+        k = readchar.readchar()
 
