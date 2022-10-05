@@ -43,16 +43,19 @@ def start_aapm() -> None:
 
 
 def choose_privat() -> None:
-    pyautogui.hotkey("tab")
     pyautogui.write("GP Radiologie privat")
     pyautogui.hotkey("enter")
 
 
 def choose_weserstadion() -> None:
-    pyautogui.hotkey("tab")
     pyautogui.write("Radiologie am Weserstadion")
     pyautogui.hotkey("enter")
 
+def is_weserstadion_aapm() -> bool:
+    if len(pyautogui.getWindowsWithTitle("ORBIS-AAPM [AZH]  (AZ-BS) Radiologie am Weserstadion(MVZ-Sportmedizin am Weserstadion)")) > 0:
+        return True
+    else:
+        return False
 
 def aapm_open() -> bool:
     if len(pyautogui.getWindowsWithTitle("ORBIS-AAPM")) > 0:
@@ -82,7 +85,8 @@ def open_zahlung_erfassen() -> None:
     w = pyautogui.getWindowsWithTitle("ORBIS-AAPM")
     w[0].activate()
     pyautogui.keyDown("alt")
-    pyautogui.write("goz", 0.1)
+    pyautogui.sleep(0.1)
+    pyautogui.write("goz", 0.2)
     pyautogui.keyUp("alt")
 
 
@@ -129,7 +133,6 @@ def write_zahlung(rechnungsnummer: str, data: dict) -> None:
     pyautogui.hotkey("enter")
     # Jump to "OK"
     pyautogui.hotkey("tab")
-    pyautogui.countdown(3)
     pyautogui.hotkey("enter")
 
     
@@ -144,10 +147,12 @@ def main():
     answers = prompt(questions=pyinquirer_questions, style=custom_style_3)
     choice = answers.get('user_input')
 
+    if aapm_open and is_weserstadion_aapm():
+        exit_aapm()
+    
     if not aapm_open():
         start_aapm()
         choose_privat()
-    #TODO: Else determine which aapm is open
    
     working_dict = csv_to_dict(choice)
     for rechnungsnummer, data in working_dict.items():
@@ -162,6 +167,7 @@ def main():
         start_aapm()
         pyautogui.sleep(2)
         choose_weserstadion()
+        pyautogui.sleep(2)
 
     working_dict = csv_to_dict(choice)
     for rechnungsnummer, data in working_dict.items():
