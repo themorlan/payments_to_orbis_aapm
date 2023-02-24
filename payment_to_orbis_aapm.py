@@ -135,6 +135,7 @@ def write_zahlung(rechnungsnummer: str, data: dict) -> None:
     pyautogui.hotkey("enter")
     # Jump to "OK"
     pyautogui.hotkey("tab")
+    pyautogui.hotkey("tab")
     pyautogui.hotkey("enter")
 
     
