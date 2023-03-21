@@ -46,11 +46,17 @@ def start_aapm() -> None:
 
 def choose_privat() -> None:
     pyautogui.write("GP Radiologie privat")
+    pyautogui.hotkey("tab")
+    pyautogui.hotkey("tab")
+    pyautogui.hotkey("tab")
     pyautogui.hotkey("enter")
 
 
 def choose_weserstadion() -> None:
     pyautogui.write("Radiologie am Weserstadion")
+    pyautogui.hotkey("tab")
+    pyautogui.hotkey("tab")
+    pyautogui.hotkey("tab")
     pyautogui.hotkey("enter")
 
 def is_weserstadion_aapm() -> bool:
