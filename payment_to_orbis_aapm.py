@@ -156,6 +156,8 @@ def main():
     answers = prompt(questions=pyinquirer_questions, style=custom_style_3)
     choice = answers.get('user_input')
 
+    print(pyautogui.size())
+
     if aapm_open and is_weserstadion_aapm():
         exit_aapm()
     
