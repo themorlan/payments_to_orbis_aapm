@@ -25,7 +25,13 @@ def csv_to_dict(csv_file: str) -> dict:
         reader = csv.DictReader(_csv_file, delimiter=";")
         _dict = {}
         for row in reader:
-            _dict[row['Rechnungsnummer']] = {'Umsatz': row['Umsatz'], 'Buchungstag': row['Buchungstag']}
+            if row['Rechnungsnummer'] == '':
+                continue
+            elif row['Rechnungsnummer'] in _dict:
+                # Add Umsatz if Rechnungsnummer already exists. Needs to converted to float
+                _dict[row['Rechnungsnummer']]['Umsatz'] = str(float(_dict[row['Rechnungsnummer']]['Umsatz'].replace(",", ".")) + float(row['Umsatz'].replace(",", "."))).replace(".", ",")
+            else:
+                _dict[row['Rechnungsnummer']] = {'Umsatz': row['Umsatz'], 'Buchungstag': row['Buchungstag']}
         return _dict
 
 
@@ -201,4 +207,5 @@ if __name__ == "__main__":
     finally:
         print("Drücke eine beliebige Taste um das Programm zu beenden...")
         k = readchar.readchar()
+
 
